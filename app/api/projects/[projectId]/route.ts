@@ -16,14 +16,14 @@ export async function PATCH(
     return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await request.json().catch(() => ({}));
-  const name: string =
+  const name: string | undefined =
     typeof body?.name === "string" && body.name.trim()
       ? body.name.trim()
-      : "Untitled Project";
+      : undefined;
 
   const updated = await prisma.project.update({
     where: { id: projectId },
-    data: { name },
+    data: name ? { name } : {},
   });
 
   return Response.json(updated);

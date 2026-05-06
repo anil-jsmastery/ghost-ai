@@ -27,9 +27,15 @@ export async function POST(request: Request) {
       ? body.id.trim()
       : undefined;
 
-  const project = await prisma.project.create({
-    data: { ...(id ? { id } : {}), ownerId: userId, name },
-  });
-
-  return Response.json(project, { status: 201 });
+  try {
+    const project = await prisma.project.create({
+      data: { ...(id ? { id } : {}), ownerId: userId, name },
+    });
+    return Response.json(project, { status: 201 });
+  } catch (error) {
+    if (typeof error === "object" && error !== null && "code" in error && (error as { code: string }).code === "P2002") {
+      return Response.json({ error: "Project ID already exists" }, { status: 409 });
+    }
+    throw error;
+  }
 }
