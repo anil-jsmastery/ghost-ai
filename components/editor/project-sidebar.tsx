@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { X, Plus, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,11 +12,8 @@ interface ProjectSidebarProps {
 }
 
 export function ProjectSidebar({ isOpen, onClose }: ProjectSidebarProps) {
-  const { projects, openCreateDialog, openRenameDialog, openDeleteDialog } =
+  const { ownedProjects, sharedProjects, openCreateDialog, openRenameDialog, openDeleteDialog } =
     useProjectDialogsContext();
-
-  const ownedProjects = projects.filter((p) => p.isOwned);
-  const sharedProjects = projects.filter((p) => !p.isOwned);
 
   return (
     <>
@@ -74,9 +72,13 @@ export function ProjectSidebar({ isOpen, onClose }: ProjectSidebarProps) {
                       key={project.id}
                       className="group flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted/50"
                     >
-                      <span className="flex-1 truncate text-sm text-foreground">
+                      <Link
+                        href={`/editor/${project.id}`}
+                        className="flex-1 truncate text-sm text-foreground"
+                        onClick={onClose}
+                      >
                         {project.name}
-                      </span>
+                      </Link>
                       <div className="hidden items-center gap-0.5 group-hover:flex">
                         <Button
                           variant="ghost"
@@ -118,9 +120,13 @@ export function ProjectSidebar({ isOpen, onClose }: ProjectSidebarProps) {
                       key={project.id}
                       className="flex items-center rounded-md px-2 py-1.5 hover:bg-muted/50"
                     >
-                      <span className="flex-1 truncate text-sm text-foreground">
+                      <Link
+                        href={`/editor/${project.id}`}
+                        className="flex-1 truncate text-sm text-foreground"
+                        onClick={onClose}
+                      >
                         {project.name}
-                      </span>
+                      </Link>
                     </li>
                   ))}
                 </ul>

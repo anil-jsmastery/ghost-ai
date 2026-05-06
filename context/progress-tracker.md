@@ -9,9 +9,26 @@ change.
 
 ## Current Goal
 
-- Feature 06 (TBD from feature specs)
+- Feature 08 (TBD from feature specs)
 
 ## Completed
+
+- **Feature 07 — Wire Editor to Real Project API**
+  - Created `lib/data/projects.ts` — `getProjectsForUser()` server helper fetches owned projects (by `ownerId`) and shared projects (via `ProjectCollaborator.collaboratorEmail`) from Prisma in parallel using `currentUser()` from Clerk
+  - Created `hooks/use-project-actions.ts` — replaces mock hook; manages dialog state + real API mutations: create (`POST /api/projects` with slug-based custom ID + short random suffix), rename (`PATCH /api/projects/[id]` with optimistic update + rollback), delete (`DELETE /api/projects/[id]` with optimistic update + redirect to `/editor` if deleting active workspace, else `router.refresh()`)
+  - Created `components/editor/editor-home-client.tsx` — client shell that receives server-fetched project lists as props, owns sidebar toggle state, renders navbar + sidebar + dialogs + main content
+  - Updated `app/api/projects/route.ts` POST — accepts optional `id` field to support custom slug-based project IDs
+  - Updated `app/editor/layout.tsx` — simplified to a server component pass-through (chrome moved to page-level)
+  - Updated `app/editor/page.tsx` — server component that fetches projects and delegates to `EditorHomeClient`
+  - Updated `components/editor/project-dialogs-context.tsx` — context type now derives from `useProjectActions`
+  - Updated `components/editor/project-dialogs.tsx` — create dialog shows room ID preview (slug + suffix) instead of plain slug
+  - Updated `components/editor/project-sidebar.tsx` — uses `ownedProjects`/`sharedProjects` from context (real data), project names link to `/editor/[id]`
+  - `npm run build` passes with zero TypeScript errors
+
+- **Feature 06 — Project API Routes**
+  - Created `app/api/projects/route.ts` — `GET` lists the authenticated user's projects (ordered by `createdAt` desc); `POST` creates a project with `ownerId` from Clerk, defaults missing name to `"Untitled Project"`
+  - Created `app/api/projects/[projectId]/route.ts` — `PATCH` renames (owner-only, 403 for non-owners); `DELETE` removes with cascade (owner-only, 403 for non-owners); both return `401` when unauthenticated
+  - `npm run build` passes with zero TypeScript errors
 
 - **Feature 05 — Prisma Data Layer**
   - Created `prisma/models/project.prisma` — `Project` model (ownerId, name, optional description, status enum DRAFT/ARCHIVED, canvasJsonPath, timestamps, indexes on ownerId and createdAt) and `ProjectCollaborator` model (project relation with cascade delete, collaboratorEmail, createdAt, unique on projectId/email, indexes on email and projectId/createdAt)
@@ -57,7 +74,7 @@ change.
 
 ## Next Up
 
-- Feature 06 (TBD from feature specs)
+- Feature 08 (TBD from feature specs)
 
 ## Open Questions
 
