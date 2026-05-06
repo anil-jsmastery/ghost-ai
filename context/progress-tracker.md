@@ -9,9 +9,15 @@ change.
 
 ## Current Goal
 
-- Feature 03 — Authentication (Clerk integration)
+- Feature 06 (TBD from feature specs)
 
 ## Completed
+
+- **Feature 05 — Prisma Data Layer**
+  - Created `prisma/models/project.prisma` — `Project` model (ownerId, name, optional description, status enum DRAFT/ARCHIVED, canvasJsonPath, timestamps, indexes on ownerId and createdAt) and `ProjectCollaborator` model (project relation with cascade delete, collaboratorEmail, createdAt, unique on projectId/email, indexes on email and projectId/createdAt)
+  - Created `lib/prisma.ts` — cached singleton, branches on `DATABASE_URL`: `prisma+postgres://` uses `accelerateUrl` (Prisma Accelerate), otherwise uses `@prisma/adapter-pg` direct driver
+  - Ran `prisma migrate dev --name init-projects` — migration applied to database and client generated to `app/generated/prisma/`
+  - `npm run build` passes with zero TypeScript errors
 
 - **Feature 04 — Project Dialogs**
   - Created `hooks/use-project-dialogs.ts` — dedicated hook managing dialog state, form state, loading state, and mock project list (create/rename/delete update state in memory)
@@ -51,7 +57,7 @@ change.
 
 ## Next Up
 
-- Feature 05 (TBD from feature specs)
+- Feature 06 (TBD from feature specs)
 
 ## Open Questions
 
@@ -59,6 +65,9 @@ change.
 
 ## Architecture Decisions
 
+- Prisma v7 uses `accelerateUrl` option (not an adapter) for `prisma+postgres://` / Accelerate connections; `adapter` option is for direct driver connections (`@prisma/adapter-pg`)
+- Prisma schema split across `prisma/schema.prisma` (generator + datasource) and `prisma/models/*.prisma` (models); `prisma.config.ts` points schema dir to `prisma/`
+- Generated Prisma client lives at `app/generated/prisma/client` (not an index export); import as `@/app/generated/prisma/client`
 - Using shadcn/ui on top of Tailwind CSS v4 for the component library
 - components/ui/ holds all shadcn-generated primitives — not modified after install
 - Dark mode enforced via `dark` class on `<html>` element (shadcn uses class strategy)
@@ -67,6 +76,7 @@ change.
 
 ## Session Notes
 
+- Prisma 7.8.0, @prisma/adapter-pg 7.8.0, pg 8.20.0 installed; generated client at `app/generated/prisma/`
 - Next.js 16.2.4, React 19, Tailwind CSS v4 (@tailwindcss/postcss), TypeScript strict
 - globals.css uses Tailwind v4 @import syntax; shadcn generated CSS custom property tokens
 - shadcn components must not be modified after installation
