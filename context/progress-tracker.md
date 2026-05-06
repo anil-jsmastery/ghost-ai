@@ -13,6 +13,14 @@ change.
 
 ## Completed
 
+- **Feature 04 — Project Dialogs**
+  - Created `hooks/use-project-dialogs.ts` — dedicated hook managing dialog state, form state, loading state, and mock project list (create/rename/delete update state in memory)
+  - Created `components/editor/project-dialogs-context.tsx` — context provider so editor home page and sidebar can both access dialog actions
+  - Created `components/editor/project-dialogs.tsx` — three controlled dialogs (Create with live slug preview, Rename with prefill + auto-focus + Enter-to-submit, Delete with destructive button)
+  - Updated `app/editor/layout.tsx` — uses the hook, wraps children in provider, renders dialogs at layout level
+  - Updated `app/editor/page.tsx` — heading, description, and New Project button wired to Create dialog via context
+  - Updated `components/editor/project-sidebar.tsx` — project lists with rename/delete hover actions for owned projects only (shared tab has no actions), mobile backdrop scrim added
+
 - **Feature 03 — Authentication**
   - Installed `@clerk/ui` for dark theme support
   - Created `proxy.ts` at project root (Next.js 16 replaces `middleware.ts`) — `clerkMiddleware` exported as `proxy`, public routes derived from env vars with `/sign-in` and `/sign-up` fallbacks, everything else protected by default
@@ -43,7 +51,7 @@ change.
 
 ## Next Up
 
-- Feature 04 (TBD from feature specs)
+- Feature 05 (TBD from feature specs)
 
 ## Open Questions
 
