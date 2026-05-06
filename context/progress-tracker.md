@@ -9,9 +9,18 @@ change.
 
 ## Current Goal
 
-- Feature 02 — Editor Chrome (navbar + sidebar shell)
+- Feature 03 — Authentication (Clerk integration)
 
 ## Completed
+
+- **Feature 03 — Authentication**
+  - Installed `@clerk/ui` for dark theme support
+  - Created `proxy.ts` at project root (Next.js 16 replaces `middleware.ts`) — `clerkMiddleware` exported as `proxy`, public routes derived from env vars with `/sign-in` and `/sign-up` fallbacks, everything else protected by default
+  - Wrapped root layout with `ClerkProvider` using `dark` baseTheme from `@clerk/ui/themes`, all appearance variables reference CSS custom properties (no hardcoded colors)
+  - Created `app/sign-in/[[...sign-in]]/page.tsx` — two-panel layout: left panel (logo, tagline, text-only feature list, hidden on small screens), right panel (centered `<SignIn />` form)
+  - Created `app/sign-up/[[...sign-up]]/page.tsx` — same two-panel layout with `<SignUp />` form
+  - Updated `app/page.tsx` — async server component: authenticated users redirect to `/editor`, unauthenticated to `/sign-in`
+  - Added `<UserButton />` to editor navbar right section
 
 - **Feature 02 — Editor Chrome**
   - Created `components/editor/editor-navbar.tsx` — fixed-height top bar with `PanelLeftOpen`/`PanelLeftClose` toggle, left/center/right sections
@@ -34,7 +43,7 @@ change.
 
 ## Next Up
 
-- Feature 03 (TBD from feature specs)
+- Feature 04 (TBD from feature specs)
 
 ## Open Questions
 
@@ -45,9 +54,13 @@ change.
 - Using shadcn/ui on top of Tailwind CSS v4 for the component library
 - components/ui/ holds all shadcn-generated primitives — not modified after install
 - Dark mode enforced via `dark` class on `<html>` element (shadcn uses class strategy)
+- Next.js 16 uses `proxy.ts` (renamed from `middleware.ts`); function exported as `proxy` not `middleware`
+- Clerk appearance variables reference CSS custom properties — no hardcoded colors
 
 ## Session Notes
 
 - Next.js 16.2.4, React 19, Tailwind CSS v4 (@tailwindcss/postcss), TypeScript strict
 - globals.css uses Tailwind v4 @import syntax; shadcn generated CSS custom property tokens
 - shadcn components must not be modified after installation
+- Clerk Next.js v7.3.1, @clerk/ui v1.8.0 installed
+- `proxy.ts` is the Next.js 16 equivalent of `middleware.ts` — same API, renamed file and function
