@@ -9,9 +9,32 @@ change.
 
 ## Current Goal
 
-- Feature 03 — Authentication (Clerk integration)
+- Feature 08 (TBD from feature specs)
 
 ## Completed
+
+- **Feature 07 — Wire Editor to Real Project API**
+  - Created `lib/data/projects.ts` — `getProjectsForUser()` server helper fetches owned projects (by `ownerId`) and shared projects (via `ProjectCollaborator.collaboratorEmail`) from Prisma in parallel using `currentUser()` from Clerk
+  - Created `hooks/use-project-actions.ts` — replaces mock hook; manages dialog state + real API mutations: create (`POST /api/projects` with slug-based custom ID + short random suffix), rename (`PATCH /api/projects/[id]` with optimistic update + rollback), delete (`DELETE /api/projects/[id]` with optimistic update + redirect to `/editor` if deleting active workspace, else `router.refresh()`)
+  - Created `components/editor/editor-home-client.tsx` — client shell that receives server-fetched project lists as props, owns sidebar toggle state, renders navbar + sidebar + dialogs + main content
+  - Updated `app/api/projects/route.ts` POST — accepts optional `id` field to support custom slug-based project IDs
+  - Updated `app/editor/layout.tsx` — simplified to a server component pass-through (chrome moved to page-level)
+  - Updated `app/editor/page.tsx` — server component that fetches projects and delegates to `EditorHomeClient`
+  - Updated `components/editor/project-dialogs-context.tsx` — context type now derives from `useProjectActions`
+  - Updated `components/editor/project-dialogs.tsx` — create dialog shows room ID preview (slug + suffix) instead of plain slug
+  - Updated `components/editor/project-sidebar.tsx` — uses `ownedProjects`/`sharedProjects` from context (real data), project names link to `/editor/[id]`
+  - `npm run build` passes with zero TypeScript errors
+
+- **Feature 06 — Project API Routes**
+  - Created `app/api/projects/route.ts` — `GET` lists the authenticated user's projects (ordered by `createdAt` desc); `POST` creates a project with `ownerId` from Clerk, defaults missing name to `"Untitled Project"`
+  - Created `app/api/projects/[projectId]/route.ts` — `PATCH` renames (owner-only, 403 for non-owners); `DELETE` removes with cascade (owner-only, 403 for non-owners); both return `401` when unauthenticated
+  - `npm run build` passes with zero TypeScript errors
+
+- **Feature 05 — Prisma Data Layer**
+  - Created `prisma/models/project.prisma` — `Project` model (ownerId, name, optional description, status enum DRAFT/ARCHIVED, canvasJsonPath, timestamps, indexes on ownerId and createdAt) and `ProjectCollaborator` model (project relation with cascade delete, collaboratorEmail, createdAt, unique on projectId/email, indexes on email and projectId/createdAt)
+  - Created `lib/prisma.ts` — cached singleton, branches on `DATABASE_URL`: `prisma+postgres://` uses `accelerateUrl` (Prisma Accelerate), otherwise uses `@prisma/adapter-pg` direct driver
+  - Ran `prisma migrate dev --name init-projects` — migration applied to database and client generated to `app/generated/prisma/`
+  - `npm run build` passes with zero TypeScript errors
 
 - **Feature 04 — Project Dialogs**
   - Created `hooks/use-project-dialogs.ts` — dedicated hook managing dialog state, form state, loading state, and mock project list (create/rename/delete update state in memory)
@@ -51,7 +74,7 @@ change.
 
 ## Next Up
 
-- Feature 05 (TBD from feature specs)
+- Feature 08 (TBD from feature specs)
 
 ## Open Questions
 
@@ -59,6 +82,9 @@ change.
 
 ## Architecture Decisions
 
+- Prisma v7 uses `accelerateUrl` option (not an adapter) for `prisma+postgres://` / Accelerate connections; `adapter` option is for direct driver connections (`@prisma/adapter-pg`)
+- Prisma schema split across `prisma/schema.prisma` (generator + datasource) and `prisma/models/*.prisma` (models); `prisma.config.ts` points schema dir to `prisma/`
+- Generated Prisma client lives at `app/generated/prisma/client` (not an index export); import as `@/app/generated/prisma/client`
 - Using shadcn/ui on top of Tailwind CSS v4 for the component library
 - components/ui/ holds all shadcn-generated primitives — not modified after install
 - Dark mode enforced via `dark` class on `<html>` element (shadcn uses class strategy)
@@ -67,6 +93,7 @@ change.
 
 ## Session Notes
 
+- Prisma 7.8.0, @prisma/adapter-pg 7.8.0, pg 8.20.0 installed; generated client at `app/generated/prisma/`
 - Next.js 16.2.4, React 19, Tailwind CSS v4 (@tailwindcss/postcss), TypeScript strict
 - globals.css uses Tailwind v4 @import syntax; shadcn generated CSS custom property tokens
 - shadcn components must not be modified after installation

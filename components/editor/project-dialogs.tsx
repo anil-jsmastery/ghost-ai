@@ -19,7 +19,7 @@ export function ProjectDialogs() {
     formName,
     setFormName,
     isLoading,
-    slug,
+    roomId,
     closeDialog,
     handleCreate,
     handleRename,
@@ -49,7 +49,7 @@ export function ProjectDialogs() {
             />
             {formName.trim() && (
               <p className="text-xs text-muted-foreground">
-                Slug: <span className="font-mono">{slug}</span>
+                Room ID: <span className="font-mono">{roomId}</span>
               </p>
             )}
           </div>
