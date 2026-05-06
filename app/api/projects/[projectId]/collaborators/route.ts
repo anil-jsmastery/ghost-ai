@@ -87,8 +87,11 @@ export async function POST(
 
   const clerk = await clerkClient();
   const ownerUser = await clerk.users.getUser(project.ownerId).catch(() => null);
-  const ownerEmail = ownerUser?.emailAddresses[0]?.emailAddress?.toLowerCase() ?? "";
-  if (ownerEmail && email === ownerEmail) {
+  const ownerEmail = ownerUser?.emailAddresses[0]?.emailAddress?.toLowerCase();
+  if (!ownerEmail) {
+    return Response.json({ error: "Unable to verify owner" }, { status: 500 });
+  }
+  if (email === ownerEmail) {
     return Response.json({ error: "Owner cannot be added as collaborator" }, { status: 400 });
   }
 
