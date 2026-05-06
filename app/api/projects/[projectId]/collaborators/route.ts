@@ -85,6 +85,13 @@ export async function POST(
 
   if (!email) return Response.json({ error: "Email is required" }, { status: 400 });
 
+  const clerk = await clerkClient();
+  const ownerUser = await clerk.users.getUser(project.ownerId).catch(() => null);
+  const ownerEmail = ownerUser?.emailAddresses[0]?.emailAddress?.toLowerCase() ?? "";
+  if (ownerEmail && email === ownerEmail) {
+    return Response.json({ error: "Owner cannot be added as collaborator" }, { status: 400 });
+  }
+
   try {
     const collab = await prisma.projectCollaborator.create({
       data: { projectId, collaboratorEmail: email },
