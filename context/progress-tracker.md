@@ -9,9 +9,27 @@ change.
 
 ## Current Goal
 
-- Feature 08 (TBD from feature specs)
+- Feature 10 (TBD from feature specs)
 
 ## Completed
+
+- **Feature 09 — Share Dialog**
+  - Created `app/api/projects/[projectId]/collaborators/route.ts` — `GET` lists collaborators enriched with Clerk display name and avatar (accessible to owner and collaborators); `POST` invites by email (owner-only, 403 for non-owners, 409 if already a collaborator)
+  - Created `app/api/projects/[projectId]/collaborators/[email]/route.ts` — `DELETE` removes a collaborator by URL-encoded email (owner-only)
+  - Created `components/editor/share-dialog.tsx` — client dialog; owners see invite form + remove buttons per collaborator; collaborators see read-only list; collaborator rows show Clerk avatar and display name (falls back to email initial); "Copy link" button copies `/editor/[projectId]` with 2 s "Copied!" feedback; fetches collaborator list on open
+  - Updated `components/editor/workspace-navbar.tsx` — added `onShare` prop; Share button is now active (removed `disabled`)
+  - Updated `components/editor/workspace-client.tsx` — added `isOwner` prop; manages `shareDialogOpen` state; renders `ShareDialog` wired to Share button
+  - Updated `app/editor/[roomId]/page.tsx` — derives `isOwner` from `project.ownerId === identity.userId` and passes it to `WorkspaceClient`
+  - `npm run build` passes with zero TypeScript errors
+
+- **Feature 08 — Editor Workspace Shell**
+  - Created `lib/project-access.ts` — `getCurrentUserIdentity()` returns `{ userId, email }` from Clerk; `getProjectWithAccess()` fetches a project by ID and returns it only if the caller is owner or a collaborator (checked via `ProjectCollaborator` unique index)
+  - Created `components/editor/access-denied.tsx` — centered layout with `Lock` icon, short message, and a link back to `/editor`; used for both missing and unauthorized projects
+  - Created `components/editor/workspace-navbar.tsx` — client component; shows sidebar toggle (left), project name (center), and share button + AI sidebar toggle + `UserButton` (right); share button disabled (placeholder)
+  - Created `components/editor/workspace-client.tsx` — client shell managing sidebar and AI sidebar open/close state; wraps `ProjectDialogsProvider` + `ProjectDialogs`; renders `WorkspaceNavbar`, `ProjectSidebar` (with `activeProjectId`), dark canvas placeholder, and collapsible right AI sidebar placeholder
+  - Created `app/editor/[roomId]/page.tsx` — async server component; awaits `params` Promise; unauthenticated users redirect to `/sign-in`; missing/unauthorized projects render `AccessDenied`; authorized access renders `WorkspaceClient` with project + sidebar data fetched in parallel
+  - Updated `components/editor/project-sidebar.tsx` — added optional `activeProjectId` prop; matching project row highlighted with `bg-muted` in both owned and shared lists
+  - `npm run build` passes with zero TypeScript errors
 
 - **Feature 07 — Wire Editor to Real Project API**
   - Created `lib/data/projects.ts` — `getProjectsForUser()` server helper fetches owned projects (by `ownerId`) and shared projects (via `ProjectCollaborator.collaboratorEmail`) from Prisma in parallel using `currentUser()` from Clerk
@@ -74,7 +92,7 @@ change.
 
 ## Next Up
 
-- Feature 08 (TBD from feature specs)
+- Feature 10 (TBD from feature specs)
 
 ## Open Questions
 

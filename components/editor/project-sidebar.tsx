@@ -9,9 +9,10 @@ import { useProjectDialogsContext } from "@/components/editor/project-dialogs-co
 interface ProjectSidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  activeProjectId?: string;
 }
 
-export function ProjectSidebar({ isOpen, onClose }: ProjectSidebarProps) {
+export function ProjectSidebar({ isOpen, onClose, activeProjectId }: ProjectSidebarProps) {
   const { ownedProjects, sharedProjects, openCreateDialog, openRenameDialog, openDeleteDialog } =
     useProjectDialogsContext();
 
@@ -70,7 +71,9 @@ export function ProjectSidebar({ isOpen, onClose }: ProjectSidebarProps) {
                   {ownedProjects.map((project) => (
                     <li
                       key={project.id}
-                      className="group flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted/50"
+                      className={`group flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted/50 ${
+                        activeProjectId === project.id ? "bg-muted" : ""
+                      }`}
                     >
                       <Link
                         href={`/editor/${project.id}`}
@@ -118,7 +121,9 @@ export function ProjectSidebar({ isOpen, onClose }: ProjectSidebarProps) {
                   {sharedProjects.map((project) => (
                     <li
                       key={project.id}
-                      className="flex items-center rounded-md px-2 py-1.5 hover:bg-muted/50"
+                      className={`flex items-center rounded-md px-2 py-1.5 hover:bg-muted/50 ${
+                        activeProjectId === project.id ? "bg-muted" : ""
+                      }`}
                     >
                       <Link
                         href={`/editor/${project.id}`}
