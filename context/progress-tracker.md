@@ -9,9 +9,30 @@ change.
 
 ## Current Goal
 
-- Feature 10 (TBD from feature specs)
+- Feature 13 (TBD from feature specs)
 
 ## Completed
+
+- **Feature 12 — Shape Panel**
+  - Created `components/editor/canvas-node.tsx` — `CanvasNodeRenderer` for the `"canvasNode"` type; renders a simple bordered rectangle with centered label and top/bottom handles; all shapes use this renderer (shape-specific visuals deferred)
+  - Created `components/editor/shape-panel.tsx` — floating pill-shaped toolbar; six draggable icon buttons (rectangle, diamond, circle, pill, cylinder, hexagon); `onDragStart` encodes shape name + default size as `application/ghost-shape` JSON payload; sensible defaults (rectangles wider than tall, circles square, diamonds slightly larger)
+  - Updated `components/editor/canvas.tsx` — split into `CanvasInner` (uses `useLiveblocksFlow` + `useReactFlow`) and `Canvas` (wraps in `ReactFlowProvider` so `useReactFlow` resolves correctly); `onDragOver` / `onDrop` on the wrapper div; drop converts client position to canvas coordinates via `screenToFlowPosition`, centers the node on the cursor, fires `onNodesChange([{ type: "add", item }])`; node IDs follow `${shape}-${timestamp}-${counter}`; `nodeTypes` wires `canvasNode` → `CanvasNodeRenderer`; `ShapePanel` rendered via `<Panel position="bottom-center">`
+  - `npm run build` passes with zero TypeScript errors
+
+- **Feature 11 — Base Canvas**
+  - Created `types/canvas.ts` — `CanvasNodeData` (label, color, shape), `CanvasNode` (Node with `"canvasNode"` type literal), `CanvasEdge` (Edge with `"canvasEdge"` type literal)
+  - Updated `liveblocks.config.ts` — `Storage` now types the `flow` key as `LiveblocksFlow<CanvasNode, CanvasEdge>`
+  - Created `components/editor/canvas-wrapper.tsx` — client component; class-based `ErrorBoundary` for Liveblocks connection failures; `LiveblocksProvider` (auth at `/api/liveblocks-auth`) > `RoomProvider` (room ID, initial presence `cursor: null / isThinking: false`, initial storage with empty `LiveObject { nodes: LiveMap, edges: LiveMap }`) > `ClientSideSuspense` with loading fallback > `Canvas`
+  - Created `components/editor/canvas.tsx` — client component; `useLiveblocksFlow<CanvasNode, CanvasEdge>({ suspense: true })`; `ReactFlow` with loose connection mode, `fitView`, dot-pattern `Background`, and `MiniMap`; `@xyflow/react/dist/style.css` imported
+  - Updated `components/editor/workspace-client.tsx` — replaced canvas placeholder with `<CanvasWrapper roomId={project.id} />`; main is now `relative` to allow the canvas `absolute inset-0` positioning
+  - `npm run build` passes with zero TypeScript errors
+
+- **Feature 10 — Liveblocks Realtime Infrastructure**
+  - Installed `@liveblocks/node` (lazy-initialized to avoid build-time secret validation failure)
+  - Updated `liveblocks.config.ts` — `Presence` defines `cursor: { x, y } | null` and `isThinking: boolean`; `UserMeta.info` defines `name`, `avatar`, `cursorColor`
+  - Created `lib/liveblocks.ts` — lazy-init singleton `getLiveblocks()` helper; `getUserCursorColor(userId)` deterministically maps a user ID to one of 10 fixed colors via a hash function
+  - Created `app/api/liveblocks-auth/route.ts` — `POST` requires Clerk auth (401 if missing); parses `room` from request body; verifies project access via `getProjectWithAccess` (403 if unauthorized); calls `getOrCreateRoom` using the project ID as room ID (`defaultAccesses: ["room:write"]`); returns ID token session with `name`, `avatar`, and `cursorColor` via `identifyUser`
+  - `npm run build` passes with zero TypeScript errors
 
 - **Feature 09 — Share Dialog**
   - Created `app/api/projects/[projectId]/collaborators/route.ts` — `GET` lists collaborators enriched with Clerk display name and avatar (accessible to owner and collaborators); `POST` invites by email (owner-only, 403 for non-owners, 409 if already a collaborator)
@@ -92,7 +113,15 @@ change.
 
 ## Next Up
 
-- Feature 10 (TBD from feature specs)
+- Feature 13 (TBD from feature specs)
+
+## Recent Fixes (current-issues.md)
+
+- **Canvas visual / sidebar / drag-and-drop fixes**
+  - `workspace-client.tsx` — AI sidebar changed from a flex child to `fixed right-0 top-12 z-30`; canvas `main` is now `absolute inset-0 flex` so it fills the full viewport regardless of sidebars
+  - `canvas.tsx` — moved `onDragOver` / `onDrop` from the outer wrapper div onto `<ReactFlow>` directly (fixes drag-and-drop from ShapePanel); `Background` color/gap/size customised for dark theme; `MiniMap` styled with dark `background`, `nodeColor`, and `maskColor`
+  - `project-sidebar.tsx` — wrapped the `<aside>` in a `fixed overflow-hidden w-72` clip container with `pointer-events-none` when closed; prevents `shadow-xl` from bleeding into the viewport when the sidebar slides off-screen
+  - `npm run build` passes with zero TypeScript errors
 
 ## Open Questions
 
@@ -100,6 +129,8 @@ change.
 
 ## Architecture Decisions
 
+- Liveblocks Node client must be lazy-initialized (not module-level singleton) — the constructor validates the secret key at instantiation, which fails during `next build` when env vars are absent
+- Liveblocks ID token auth: `identifyUser` requires `groupIds: []` (not optional in v3); `defaultAccesses: ["room:write"]` is safe when auth endpoint enforces its own project-access check
 - Prisma v7 uses `accelerateUrl` option (not an adapter) for `prisma+postgres://` / Accelerate connections; `adapter` option is for direct driver connections (`@prisma/adapter-pg`)
 - Prisma schema split across `prisma/schema.prisma` (generator + datasource) and `prisma/models/*.prisma` (models); `prisma.config.ts` points schema dir to `prisma/`
 - Generated Prisma client lives at `app/generated/prisma/client` (not an index export); import as `@/app/generated/prisma/client`
@@ -111,6 +142,7 @@ change.
 
 ## Session Notes
 
+- @liveblocks/node installed alongside existing @liveblocks/client, react, react-ui, react-flow
 - Prisma 7.8.0, @prisma/adapter-pg 7.8.0, pg 8.20.0 installed; generated client at `app/generated/prisma/`
 - Next.js 16.2.4, React 19, Tailwind CSS v4 (@tailwindcss/postcss), TypeScript strict
 - globals.css uses Tailwind v4 @import syntax; shadcn generated CSS custom property tokens

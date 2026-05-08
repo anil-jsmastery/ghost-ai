@@ -6,6 +6,7 @@ import { ProjectSidebar } from "@/components/editor/project-sidebar";
 import { ProjectDialogsProvider } from "@/components/editor/project-dialogs-context";
 import { ProjectDialogs } from "@/components/editor/project-dialogs";
 import { ShareDialog } from "@/components/editor/share-dialog";
+import { CanvasWrapper } from "@/components/editor/canvas-wrapper";
 import { useProjectActions } from "@/hooks/use-project-actions";
 import type { ProjectData } from "@/lib/data/projects";
 
@@ -38,19 +39,17 @@ export function WorkspaceClient({
           onToggleAiSidebar={() => setAiSidebarOpen((prev) => !prev)}
           onShare={() => setShareDialogOpen(true)}
         />
-        <div className="relative flex flex-1 overflow-hidden">
+        <div className="relative flex-1 overflow-hidden">
           <ProjectSidebar
             isOpen={sidebarOpen}
             onClose={() => setSidebarOpen(false)}
             activeProjectId={project.id}
           />
-          <main className="flex flex-1 flex-col overflow-hidden bg-[#0d0d0d]">
-            <div className="flex flex-1 items-center justify-center">
-              <p className="text-sm text-muted-foreground">Canvas coming soon</p>
-            </div>
+          <main className="absolute inset-0 flex bg-[#0d0d0d]">
+            <CanvasWrapper roomId={project.id} />
           </main>
           {aiSidebarOpen && (
-            <aside className="flex w-80 shrink-0 flex-col border-l border-border bg-card">
+            <aside className="fixed right-0 top-12 z-30 flex h-[calc(100vh-3rem)] w-80 flex-col border-l border-border bg-card">
               <div className="flex flex-1 items-center justify-center">
                 <p className="text-sm text-muted-foreground">AI chat coming soon</p>
               </div>
