@@ -1,7 +1,7 @@
 "use client";
 
 import { UserButton } from "@clerk/nextjs";
-import { MessageSquare, PanelLeftClose, PanelLeftOpen, Share2 } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, Share2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface WorkspaceNavbarProps {
@@ -50,12 +50,13 @@ export function WorkspaceNavbar({
           Share
         </Button>
         <Button
-          variant="ghost"
-          size="icon"
+          size="sm"
           onClick={onToggleAiSidebar}
           aria-label={isAiSidebarOpen ? "Close AI sidebar" : "Open AI sidebar"}
+          className="bg-cyan-400 text-black hover:bg-cyan-300 border-0"
         >
-          <MessageSquare className="h-4 w-4" />
+          <Sparkles className="h-4 w-4" />
+          AI
         </Button>
         <UserButton />
       </div>

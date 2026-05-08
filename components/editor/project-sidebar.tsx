@@ -26,8 +26,14 @@ export function ProjectSidebar({ isOpen, onClose, activeProjectId }: ProjectSide
         />
       )}
 
+      {/* overflow-hidden clips the shadow so it never peeks into the viewport when closed */}
+      <div
+        className={`fixed left-0 top-12 z-30 h-[calc(100vh-3rem)] w-72 overflow-hidden ${
+          !isOpen ? "pointer-events-none" : ""
+        }`}
+      >
       <aside
-        className={`fixed left-0 top-12 z-30 flex h-[calc(100vh-3rem)] w-72 flex-col border-r border-border bg-card shadow-xl transition-transform duration-200 ease-in-out ${
+        className={`absolute inset-0 flex flex-col border-r border-border bg-card shadow-xl transition-transform duration-200 ease-in-out ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -147,6 +153,7 @@ export function ProjectSidebar({ isOpen, onClose, activeProjectId }: ProjectSide
           </Button>
         </div>
       </aside>
+      </div>
     </>
   );
 }
